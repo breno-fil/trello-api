@@ -105,8 +105,6 @@ export class ListService {
         app.log.debug(`ListService :: patch() :: result :: ${JSON.stringify(result)}`);
         return Promise.resolve(list);
       }
-
-
     } catch (error) {
       app.log.error(`ListService :: update() :: error :: ${error}`);
       return Promise.reject(error);

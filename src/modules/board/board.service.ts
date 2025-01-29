@@ -76,11 +76,11 @@ export class BoardService {
     }
   }
 
-  public async update(Board: Partial<Board>): Promise<any> {
+  public async update(board: Partial<Board>): Promise<any> {
     try {
       app.log.debug(`BoardService :: update()`);
 
-      let result = await this.boardRepository.update(Board);
+      let result = await this.boardRepository.update(board);
 
       app.log.debug(
         `BoardService :: update() :: result :: ${JSON.stringify(result)}`,
@@ -89,6 +89,30 @@ export class BoardService {
       return Promise.resolve(result);
     } catch (error) {
       app.log.error(`BoardService :: update() :: error :: ${error}`);
+      return Promise.reject(error);
+    }
+  }
+
+  public async patch(board: Partial<Board>): Promise<any> {
+    try {
+      app.log.debug(`BoardService :: patch()`);
+
+      let result = await this.boardRepository.patch(board);
+
+      const row_count: number = result?.rowCount ?? 0;
+
+      app.log.debug(`BoardService :: patch() :: result :: ${JSON.stringify(result)}`);
+
+      if (row_count != 0) {
+        const response_board = this.findById(String(board.id))
+        app.log.debug(`BoardService :: patch() :: result :: findById :: ${JSON.stringify(response_board)}`);
+        return Promise.resolve(response_board)
+      } else {
+        app.log.debug(`BoardService :: patch() :: result :: ${JSON.stringify(result)}`);
+        return Promise.resolve(board)
+      }
+    } catch (error) {
+      app.log.error(`BoardService :: patch() :: error :: ${error}`);
       return Promise.reject(error);
     }
   }

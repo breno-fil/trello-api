@@ -39,8 +39,8 @@ export class UserRepository implements IRepository {
       if (rows.length > 0) {
         const user: any = rows[0];
         const userRetorno: User = new User(
-          user.id, 
-          user.username, 
+          user.id,
+          user.username,
           user.email
         );
 
@@ -66,14 +66,14 @@ export class UserRepository implements IRepository {
       return app.pg.transact(async client => {
         // will resolve to an id, or reject with an error
         const user = await client.query(
-            'INSERT INTO users(id, username, email, password) VALUES(nextval(\'users_id_seq\'::regclass), $1, $2, $3) RETURNING id', 
-            [entity.username, entity.email, entity.password]
+          'INSERT INTO users(id, username, email, password) VALUES(nextval(\'users_id_seq\'::regclass), $1, $2, $3) RETURNING id',
+          [entity.username, entity.email, entity.password]
         )
-    
+
         app.log.debug(`UserRepository :: create() :: id :: ${JSON.stringify(user)}`,);
 
         return Promise.resolve(user);
-      });  
+      });
     } finally {
       // Release the client immediately after query resolves, or upon error
       client.release()
@@ -89,11 +89,47 @@ export class UserRepository implements IRepository {
       return app.pg.transact(async client => {
         // will resolve to an id, or reject with an error
         const user = await client.query(
-            'UPDATE users SET username=$2, email=$3, password=$4, token=$5 WHERE id=$1', 
-            [entity.id, entity.username, entity.email, entity.password, entity.token]
+          'UPDATE users SET username=$2, email=$3, password=$4, token=$5 WHERE id=$1',
+          [entity.id, entity.username, entity.email, entity.password, entity.token]
         )
-    
+
         app.log.debug(`UserRepository :: create() :: id :: ${JSON.stringify(user)}`,);
+        return Promise.resolve(user);
+      });
+    } finally {
+      // Release the client immediately after query resolves, or upon error
+      client.release()
+    }
+  }
+
+  async patch(entity: Partial<User>): Promise<any> {
+    app.log.debug(`UserRepository :: patch() :: user :: ${entity}`,);
+
+    const client = await app.pg.connect();
+
+    var query_string: string = "UPDATE users SET ";
+
+    var entries: any[] = Object.entries(entity);
+
+    entries.forEach((entry: any, index: number) => {
+      const type = typeof entry[1]
+
+      if (type == 'string') {
+        query_string = query_string.concat(`${entry[0]}='${entry[1]}'`)
+      } else {
+        query_string = query_string.concat(`${entry[0]}=${entry[1]}`)
+      }
+
+      query_string = (index < (entries.length - 1)) ? query_string.concat(', ') : query_string.concat(' ');
+    });
+
+    query_string = query_string.concat(`WHERE id=${entity.id}`);
+
+    try {
+      return app.pg.transact(async client => {
+        // will resolve to an id, or reject with an error
+        const user = await client.query(query_string);
+        app.log.debug(`UserRepository :: patch() :: id :: ${JSON.stringify(user)}`,);
         return Promise.resolve(user);
       });
     } finally {
@@ -106,8 +142,23 @@ export class UserRepository implements IRepository {
     return Promise.resolve({});
   }
 
-  async changePassword(entity: Partial<User>, isProfileUpdate?: boolean,): Promise<any> {
-    return Promise.resolve({});
+  async changePassword(entity: Partial<User>): Promise<any> {
+    const client = await app.pg.connect();
+    try {
+      return app.pg.transact(async client => {
+        // will resolve to an id, or reject with an error
+        const user = await client.query(
+          'UPDATE users SET password=$2 WHERE id=$1',
+          [entity.id, entity.newPassword]
+        );
+        app.log.debug(`UserRepository :: patch() :: id :: ${JSON.stringify(user)}`,);
+        return Promise.resolve(user);
+      });
+    } finally {
+      // Release the client immediately after query resolves, or upon error
+      client.release()
+    }
+
   }
 
   async login(user: Partial<User>): Promise<User | null> {
@@ -118,7 +169,7 @@ export class UserRepository implements IRepository {
 
     try {
       const { rows } = await client.query(
-        'SELECT * FROM users WHERE email=$1 and password=$2', 
+        'SELECT * FROM users WHERE email=$1 and password=$2',
         [user.email, user.password]
       )
       // Note: avoid doing expensive computation here, this will block releasing the client
@@ -128,10 +179,10 @@ export class UserRepository implements IRepository {
       if (rows.length > 0) {
         const user: any = rows[0];
         const userRetorno: User = new User(
-          user.id, 
-          user.username, 
+          user.id,
+          user.username,
           user.email,
-          user.password 
+          user.password
         );
 
         userRetorno.token = app.jwt.sign({
@@ -141,7 +192,7 @@ export class UserRepository implements IRepository {
         });
 
         const { updatedUser } = await client.query(
-          "UPDATE users SET token=$1 WHERE id=$2;", 
+          "UPDATE users SET token=$1 WHERE id=$2;",
           [userRetorno.token, userRetorno.id]
         )
 
@@ -173,8 +224,8 @@ export class UserRepository implements IRepository {
       if (rows.length > 0) {
         const user: any = rows[0];
         const userRetorno: User = new User(
-          user.id, 
-          user.username, 
+          user.id,
+          user.username,
           user.email
         );
 

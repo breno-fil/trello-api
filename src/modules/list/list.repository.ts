@@ -119,12 +119,11 @@ export class ListRepository implements IRepository {
 
     const client = await app.pg.connect();
 
-    var query_string: string = "UPDATE lists SET "
+    var query_string: string = "UPDATE lists SET ";
 
     var entries: any[] = Object.entries(entity);
 
-    entries.forEach((entry: string, index: any) => {
-
+    entries.forEach((entry: any, index: number) => {
       const type = typeof entry[1]
 
       if (type == 'string') {
@@ -133,20 +132,15 @@ export class ListRepository implements IRepository {
         query_string = query_string.concat(`${entry[0]}=${entry[1]}`)
       }
 
-      if (index < (entries.length - 1)) {
-        query_string = query_string.concat(', ');
-      } else {
-        query_string = query_string.concat(' ');
-      }
+      query_string = (index < (entries.length - 1)) ? query_string.concat(', ') : query_string.concat(' ');
+    });
 
-    })
-
-    query_string = query_string.concat(`WHERE id=${entity.id}`)
+    query_string = query_string.concat(`WHERE id=${entity.id}`);
 
     try {
       return app.pg.transact(async client => {
         // will resolve to an id, or reject with an error
-        const list = await client.query(query_string)
+        const list = await client.query(query_string);
         
         app.log.debug(`ListRepository :: patch() :: list :: ${JSON.stringify(list)}`,);
         return Promise.resolve(list);

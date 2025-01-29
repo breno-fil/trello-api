@@ -107,6 +107,43 @@ export class BoardRepository implements IRepository {
     }
   }
 
+  async patch(entity: Partial<Board>): Promise<any> {
+    app.log.debug(`BoardRepository :: update() :: user :: ${entity}`,);
+
+    const client = await app.pg.connect();
+
+    var query_string: string = "UPDATE boards SET ";
+
+    var entries: any[] = Object.entries(entity);
+
+    entries.forEach((entry: any[], index: number) => {
+      const type = typeof entry[1];
+
+      if (type == 'string') {
+        query_string = query_string.concat(`${entry[0]}='${entry[1]}'`);
+      } else {
+        query_string = query_string.concat(`${entry[0]}=${entry[1]}`);
+      }
+
+      query_string = (index < (entries.length - 1)) ? query_string.concat(', ') : query_string.concat(' ');
+    });
+
+    query_string = query_string.concat(`WHERE id=${entity.id}`);
+
+    try {
+      return app.pg.transact(async client => {
+        // will resolve to an id, or reject with an error
+        const board = await client.query(query_string)
+        
+        app.log.debug(`BoardRepository :: patch() :: board :: ${JSON.stringify(board)}`,);
+        return Promise.resolve(board);
+      });
+    } finally {
+      // Release the client immediately after query resolves, or upon error
+      client.release()
+    }
+  }
+
   async delete(id: string): Promise<any> {
     const client = await app.pg.connect();
 

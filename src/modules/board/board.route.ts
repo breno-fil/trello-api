@@ -150,7 +150,7 @@ const optsPUT = {
         name: { type: "string" },
         background_color: { type: "string" },
         text_color: { type: "string" },
-        created_by: {type: "string"}
+        created_by: {type: "number"}
       },
     },
     response: {
@@ -163,6 +163,40 @@ const optsPUT = {
           upsertedId: { type: "string" },
           upsertedCount: { type: "number" },
           matchedCount: { type: "number" }
+        },
+      },
+    },
+    security: [
+      {
+        apiKey: [],
+      },
+    ],
+  },
+};
+
+const optsPATCH = {
+  schema: {
+    description: "Update a partial Board in the Sanitation platform.",
+    summary: "Update a partial Board.",
+    tags: ["Board"],
+    body: {
+      type: "object",
+      properties: {
+        name: { type: "string" },
+        background_color: { type: "string" },
+        text_color: { type: "string" }
+      },
+    },
+    response: {
+      200: {
+        description: "Board updated at the Sanitation platform",
+        type: "object",
+        properties: {
+          id: {type: "number"},
+          name: {type: "string"},
+          background_color: {type: "string"},
+          text_color: {type: "string"},
+          created_by: {type: "number"}
         },
       },
     },
@@ -390,13 +424,13 @@ export default fastifyPlugin(async (app: FastifyInstance) => {
       app.log.debug(`BoardRoute :: handleRequest :: update()`);
 
       const { id }: any = request.params;
-      const { nome, password, telefone }: any = request?.body;
+      const { name, background_color, text_color }: any = request?.body;
 
       let partialBoard = {
         id: id,
-        nome: nome,
-        password: password,
-        telefone: telefone,
+        name: name,
+        background_color: background_color,
+        text_color: text_color
       };
 
       app.log.debug(
@@ -414,6 +448,52 @@ export default fastifyPlugin(async (app: FastifyInstance) => {
         .catch((error) => {
           app.log.error(
             `BoardRoute :: handleRequest :: update() :: exception handling request :: ${error}`,
+          );
+          throw new Error(error);
+        });
+    },
+  });
+
+  app.route({
+    method: "PATCH",
+    url: "/api/boards/:id",
+    schema: optsPATCH.schema,
+    preHandler: app.auth([app.validateCredential, app.validatePermission], {
+      relation: "and",
+    }),
+    handler: async (request: any, reply) => {
+      app.log.debug(`BoardRoute :: handleRequest :: patch()`);
+
+      const { id }: any = request.params;
+      const { name, background_color, text_color }: any = request?.body;
+
+      let partialBoard: Partial<Board> = {id: id};
+      
+      if (name) {
+        partialBoard.name = name
+      }
+
+      if (background_color) {
+        partialBoard.background_color = background_color;
+      }
+
+      if (text_color) {
+        partialBoard.text_color = text_color;
+      }
+
+      app.log.debug(`BoardRoute :: handleRequest :: Board to patch :: ${JSON.stringify(partialBoard)}`);
+
+      await boardService
+        .update(partialBoard)
+        .then((result) => {
+          app.log.debug(
+            `BoardRoute :: handleRequest :: patch a Board :: ${JSON.stringify(result)}`,
+          );
+          reply.status(200).send(result);
+        })
+        .catch((error) => {
+          app.log.error(
+            `BoardRoute :: handleRequest :: patch() :: exception handling request :: ${error}`,
           );
           throw new Error(error);
         });

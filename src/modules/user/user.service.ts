@@ -108,6 +108,30 @@ export class UserService {
     }
   }
 
+  public async patch(user: Partial<User>): Promise<any> {
+    try {
+      app.log.debug(`UserService :: update()`);
+
+      let result = await this.userRepository.patch(user);
+
+      const row_count: number = result?.rowCount ?? 0;
+
+      app.log.debug(`ROW COUNT :: ${row_count}`);
+
+      if (row_count != 0) {
+        const response_user = this.findById(String(user.id));
+        app.log.debug(`UserService :: patch() :: result :: findById :: ${JSON.stringify(response_user)}`);
+        return Promise.resolve(response_user);
+      } else {
+        app.log.debug(`UserService :: update() :: result :: ${JSON.stringify(result)}`);
+        return Promise.resolve(result);
+      }
+    } catch (error) {
+      app.log.error(`UserService :: update() :: error :: ${error}`);
+      return Promise.reject(error);
+    }
+  }
+
   public async delete(id: string): Promise<any> {
     try {
       app.log.debug(`UserService :: delete() :: id :: ${id}`);
@@ -125,22 +149,11 @@ export class UserService {
     }
   }
 
-  public async changePassword(
-    user: Partial<User>,
-    isProfileUpdate?: boolean,
-  ): Promise<any> {
+  public async changePassword(user: Partial<User>): Promise<any> {
     try {
       app.log.debug(`UserService :: changePassword()`);
-
-      let result = await this.userRepository.changePassword(
-        user,
-        isProfileUpdate,
-      );
-
-      app.log.debug(
-        `UserService :: changePassword() :: result :: ${JSON.stringify(result)}`,
-      );
-
+      let result = await this.userRepository.changePassword(user);
+      app.log.debug(`UserService :: changePassword() :: result :: ${JSON.stringify(result)}`);
       return Promise.resolve(result);
     } catch (error) {
       app.log.error(`UserService :: changePassword() :: error :: ${error}`);

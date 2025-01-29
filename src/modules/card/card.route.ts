@@ -4,7 +4,6 @@ import fastifyPlugin from "fastify-plugin";
 import { CardService } from "./card.service";
 import { Card } from "./card.model";
 
-
 config();
 
 const optsGETALL = {
@@ -182,6 +181,44 @@ const optsPUT = {
           upsertedId: { type: "string" },
           upsertedCount: { type: "number" },
           matchedCount: { type: "number" }
+        },
+      },
+    },
+    security: [
+      {
+        apiKey: [],
+      },
+    ],
+  },
+};
+
+const optsPATCH = {
+  schema: {
+    description: "Update a partial Card in the Sanitation platform.",
+    summary: "Update a partial Card.",
+    tags: ["Card"],
+    body: {
+      type: "object",
+      properties: {
+        name: { type: "string" },
+        list_id: { type: "number" },
+        position: { type: "number" },
+        due_date: { type: "string" },
+        created_at: { type: "string" },
+        description: { type: "string" }
+      },
+    },
+    response: {
+      200: {
+        description: "Card updated at the Sanitation platform",
+        type: "object",
+        properties: {
+          name: { type: "string" },
+          list_id: { type: "number" },
+          position: { type: "number" },
+          due_date: { type: "string" },
+          created_at: { type: "string" },
+          description: { type: "string" }
         },
       },
     },
@@ -434,6 +471,67 @@ export default fastifyPlugin(async (app: FastifyInstance) => {
 
       await cardService
         .update(partialCard)
+        .then((result) => {
+          app.log.debug(
+            `CardRoute :: handleRequest :: update a Card :: ${JSON.stringify(result)}`,
+          );
+          reply.status(200).send(result);
+        })
+        .catch((error) => {
+          app.log.error(
+            `CardRoute :: handleRequest :: update() :: exception handling request :: ${error}`,
+          );
+          throw new Error(error);
+        });
+    },
+  });
+
+  /**
+   * Route to update a partial Card in the sanitation platform
+   */
+  app.route({
+    method: "PATCH",
+    url: "/api/cards/:id",
+    schema: optsPATCH.schema,
+    preHandler: app.auth([app.validateCredential, app.validatePermission], {
+      relation: "and",
+    }),
+    handler: async (request: any, reply) => {
+      app.log.debug(`CardRoute :: handleRequest :: update()`);
+
+      const { id }: any = request.params;
+      const { name, list_id, position, due_date, created_at, description }: any = request?.body;
+
+      let partialCard: Partial<Card> = { id: id };
+
+      if (name) {
+        partialCard.name = name;
+      }
+
+      if (list_id) {
+        partialCard.list_id = list_id;
+      }
+
+      if (position) {
+        partialCard.position = position;
+      }
+
+      if (due_date) {
+        partialCard.due_date = due_date;
+      }
+
+      if (created_at) {
+        partialCard.created_at = created_at;
+      }
+
+      if (description) {
+        partialCard.description = description;
+      }
+
+      app.log.debug(`CardRoute :: handleRequest :: Card to Update :: ${JSON.stringify(partialCard)}`);
+
+      await cardService
+        .patch(partialCard)
         .then((result) => {
           app.log.debug(
             `CardRoute :: handleRequest :: update a Card :: ${JSON.stringify(result)}`,

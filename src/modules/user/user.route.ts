@@ -204,6 +204,71 @@ const optsPUT = {
   },
 };
 
+const optsPATCH = {
+  schema: {
+    description: "Update a User in the Sanitation platform.",
+    summary: "Update a User.",
+    tags: ["User"],
+    body: {
+      type: "object",
+      properties: {
+        username: { type: "string" },
+        email: { type: "string" },
+        password: { type: "string" },
+        token: { type: "string" },
+      },
+    },
+    response: {
+      200: {
+        description: "User updated at the Sanitation platform",
+        type: "object",
+        properties: {
+          id: {type: 'number'},
+          username: { type: "string" },
+          email: { type: "string" },
+          password: { type: "string" },
+          token: { type: "string" },
+        },
+      },
+    },
+    security: [
+      {
+        apiKey: [],
+      },
+    ],
+  },
+};
+
+const optsPW = {
+  schema: {
+    description: "Update a User password in the Sanitation platform.",
+    summary: "Update a User password.",
+    tags: ["User"],
+    body: {
+      type: "object",
+      properties: {
+        password: { type: "string" },
+        newPassword: { type: "string" }
+      },
+    },
+    response: {
+      200: {
+        description: "User updated at the Sanitation platform",
+        type: "object",
+        properties: {
+          username: { type: "string" },
+          email: { type: "string" }
+        },
+      },
+    },
+    security: [
+      {
+        apiKey: [],
+      },
+    ],
+  },
+};
+
 const optsDELETE = {
   schema: {
     description: "Delete a User of Sanitation platform.",
@@ -457,6 +522,50 @@ export default fastifyPlugin(async (app: FastifyInstance) => {
   });
 
   /**
+   * Route to update an user in the sanitation platform
+   */
+  app.route({
+    method: "PATCH",
+    url: "/api/users/:id",
+    schema: optsPATCH.schema,
+    preHandler: app.auth([app.validateCredential, app.validatePermission], {
+      relation: "and",
+    }),
+    handler: async (request: any, reply) => {
+      app.log.debug(`UserRoute :: handleRequest :: patch()`);
+
+      const { id }: any = request.params;
+      const { nome, password, telefone }: any = request?.body;
+
+      let partialUser = {
+        id: id,
+        nome: nome,
+        password: password,
+        telefone: telefone,
+      };
+
+      app.log.debug(
+        `UserRoute :: handleRequest :: user to patch :: ${JSON.stringify(partialUser)}`,
+      );
+
+      await userService
+        .patch(partialUser)
+        .then((result) => {
+          app.log.debug(
+            `UserRoute :: handleRequest :: patch a user :: ${JSON.stringify(result)}`,
+          );
+          reply.status(200).send(result);
+        })
+        .catch((error) => {
+          app.log.error(
+            `UserRoute :: handleRequest :: patch() :: exception handling request :: ${error}`,
+          );
+          throw new Error(error);
+        });
+    },
+  });
+
+  /**
    * Route to delete an user in the sanitation platform
    */
   app.route({
@@ -525,25 +634,23 @@ export default fastifyPlugin(async (app: FastifyInstance) => {
   app.route({
     method: "PUT",
     url: "/api/users/change-password/:id",
-    schema: optsPUT.schema,
+    schema: optsPW.schema,
     handler: async (request: any, reply) => {
       app.log.debug(`UserRoute :: handleRequest :: update()`);
 
       const { id }: any = request.params;
-      const { password, newPassword, isProfileUpdate }: any = request?.body;
+      const { password, newPassword }: any = request?.body;
 
-      let partialUser = {
+      let partialUser: Partial<User> = {
         id: id,
         password: password,
-        newPassword: newPassword,
+        newPassword: newPassword
       };
 
-      app.log.debug(
-        `UserRoute :: handleRequest :: user to change password :: ${JSON.stringify(partialUser.id)}`,
-      );
+      app.log.debug(`UserRoute :: handleRequest :: user to change password :: ${JSON.stringify(partialUser.id)}`);
 
       await userService
-        .changePassword(partialUser, isProfileUpdate)
+        .changePassword(partialUser)
         .then((result) => {
           app.log.debug(
             `UserRoute :: handleRequest :: changePassword of the user :: ${JSON.stringify(result)}`,

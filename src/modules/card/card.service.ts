@@ -89,6 +89,30 @@ export class CardService {
     }
   }
 
+  public async patch(card: Partial<Card>): Promise<any> {
+    try {
+      app.log.debug(`CardService :: patch()`);
+
+      let result = await this.cardRepository.patch(card);
+
+      const row_count: number = result?.rowCount ?? 0;
+
+      app.log.debug(`ROW COUNT :: ${row_count}`);
+
+      if (row_count != 0) {
+        const response_card = this.findById(String(card.id));
+        app.log.debug(`CardService :: patch() :: result :: findById :: ${JSON.stringify(response_card)}`);
+        return Promise.resolve(response_card);
+      } else {
+        app.log.debug(`CardService :: patch() :: result :: ${JSON.stringify(result)}`);
+        return Promise.resolve(card)
+      }
+    } catch (error) {
+      app.log.error(`CardService :: patch() :: error :: ${error}`);
+      return Promise.reject(error);
+    }
+  }
+
   public async delete(id: string): Promise<any> {
     try {
       app.log.debug(`CardService :: delete() :: id :: ${id}`);
