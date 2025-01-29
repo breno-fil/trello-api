@@ -78,9 +78,7 @@ export class CardService {
 
       let result = await this.cardRepository.update(card);
 
-      app.log.debug(
-        `CardService :: update() :: result :: ${JSON.stringify(result)}`,
-      );
+      app.log.debug(`CardService :: update() :: result :: ${JSON.stringify(result)}`);
 
       return Promise.resolve(result);
     } catch (error) {
@@ -118,10 +116,7 @@ export class CardService {
       app.log.debug(`CardService :: delete() :: id :: ${id}`);
 
       let result = await this.cardRepository.delete(id);
-
-      app.log.debug(
-        `CardService :: delete() :: result :: ${JSON.stringify(result)}`,
-      );
+      app.log.debug(`CardService :: delete() :: result :: ${JSON.stringify(result)}`);
 
       return Promise.resolve(result);
     } catch (error) {

@@ -23,6 +23,10 @@ const optsGETALL = {
           type: "number",
           description: "skip number of results for pagination",
         },
+        user_id: {
+          type: "number",
+          description: "the user id"
+        }
       },
     },
     response: {
@@ -65,9 +69,10 @@ const optsRegisterPOST = {
       type: "object",
       properties: {
         name: { type: "string" },
+        text_color: { type: "string" },
         background_color: { type: "string" },
-        text_color: { type: "string" }
-      },
+        created_by: { type: "number" }
+      }
     },
     response: {
       200: {
@@ -248,51 +253,28 @@ export default fastifyPlugin(async (app: FastifyInstance) => {
     handler: async (request: any, reply) => {
       app.log.debug(`BoardRoute :: handleRequest :: findAll()`);
 
-      let { nome, limit, role, skip } = request.query;
+      let { limit, skip, user_id } = request.query;
 
-      app.log.debug(
-        `BoardRoute :: handleRequest :: findAll() :: nome => ${nome}`,
-      );
-      app.log.debug(
-        `BoardRoute :: handleRequest :: findAll() :: limit => ${limit}`,
-      );
-      app.log.debug(
-        `BoardRoute :: handleRequest :: findAll() :: role => ${role}`,
-      );
-      app.log.debug(
-        `BoardRoute :: handleRequest :: findAll() :: skip => ${skip}`,
-      );
+      app.log.debug(`BoardRoute :: handleRequest :: findAll() :: limit => ${limit}`);
+      app.log.debug(`BoardRoute :: handleRequest :: findAll() :: skip => ${skip}`);
+      app.log.debug(`BoardRoute :: handleRequest :: findAll() :: user_id => ${user_id}`);
 
       let filtro: any = {};
 
-      if (nome) {
-        filtro["nome"] = { $regex: nome, $options: "i" };
-      }
-
-      if (limit) {
-        filtro["limit"] = limit;
-      }
-
-      if (role) {
-        filtro["role"] = role;
-      }
-
-      if (skip) {
-        filtro["skip"] = skip;
-      }
+      if (limit) filtro["limit"] = limit;
+      
+      if (skip) filtro["skip"] = skip;
+      
+      if (user_id) filtro["user_id"] = user_id;
 
       await boardService
         .findAll(filtro)
         .then((Boards) => {
-          app.log.debug(
-            `BoardRoute :: handleRequest :: get all Boards :: Boards.length :: ${Boards.length}`,
-          );
+          app.log.debug(`BoardRoute :: handleRequest :: get all Boards :: Boards.length :: ${Boards.length}`);
           return reply.status(200).send(Boards);
         })
         .catch((error) => {
-          app.log.error(
-            `BoardRoute :: handleRequest :: findAll() :: exception handling request :: ${error}`,
-          );
+          app.log.error(`BoardRoute :: handleRequest :: findAll() :: exception handling request :: ${error}`);
           throw new Error(error);
         });
     },
@@ -402,9 +384,7 @@ export default fastifyPlugin(async (app: FastifyInstance) => {
           reply.status(200).send(result);
         })
         .catch((error) => {
-          app.log.error(
-            `BoardRoute :: handleRequest :: create() :: exception handling request :: ${error}`,
-          );
+          app.log.error(`BoardRoute :: handleRequest :: create() :: exception handling request :: ${error}`);
           throw new Error(error);
         });
     },
@@ -484,7 +464,7 @@ export default fastifyPlugin(async (app: FastifyInstance) => {
       app.log.debug(`BoardRoute :: handleRequest :: Board to patch :: ${JSON.stringify(partialBoard)}`);
 
       await boardService
-        .update(partialBoard)
+        .patch(partialBoard)
         .then((result) => {
           app.log.debug(
             `BoardRoute :: handleRequest :: patch a Board :: ${JSON.stringify(result)}`,

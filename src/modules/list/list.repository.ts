@@ -81,14 +81,14 @@ export class ListRepository implements IRepository {
 
     return app.pg.transact(async client => {
         // will resolve to an id, or reject with an error
-        const id = await client.query(
-            'INSERT INTO public.lists(id, name, board_id, position) VALUES(nextval(\'lists_id_seq\'::regclass), $1, $2, $3) RETURNING id', 
+        const list = await client.query(
+            'INSERT INTO public.lists(id, name, board_id, position) VALUES(nextval(\'lists_id_seq\'::regclass), $1, $2, $3) RETURNING id, name, board_id, position', 
             [entity.name, entity.board_id, entity.position]
         )
     
-        app.log.debug(`ListRepository :: create() :: id :: ${JSON.stringify(id)}`,);
+        app.log.debug(`ListRepository :: create() :: list :: ${JSON.stringify(list.rows[0])}`);
 
-        return Promise.resolve(id);
+        return Promise.resolve(list.rows[0]);
     });
   }
 

@@ -31,6 +31,7 @@ import { registerboardSchema } from "../modules/board/board.schema";
 import boardRoute from "../modules/board/board.route";
 import listRoute from "../modules/list/list.route";
 import cardRoute from "../modules/card/card.route";
+import boardUserRoute from "../modules/board-user/board-user.route";
 
 config();
 
@@ -110,7 +111,10 @@ export function createServer() {
   // <<< REGISTER ROUTES >>>
   // Board routes
   app.register(boardRoute);
-
+  
+  // Board User routes
+  app.register(boardUserRoute);
+  
   // Card routes
   app.register(cardRoute)
 

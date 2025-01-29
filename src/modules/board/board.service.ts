@@ -14,9 +14,7 @@ export class BoardService {
 
       let Boards = await this.boardRepository.findAll(filter);
 
-      app.log.debug(
-        `BoardService :: findAll() :: Boards :: Boards.length :: ${Boards.length}`,
-      );
+      app.log.debug(`BoardService :: findAll() :: Boards :: Boards.length :: ${Boards.length}`);
 
       return Promise.resolve(Boards);
     } catch (error) {
@@ -46,9 +44,7 @@ export class BoardService {
 
       let board = await this.boardRepository.findById(id);
 
-      app.log.debug(
-        `BoardService :: findById() :: Board :: ${JSON.stringify(board)}`,
-      );
+      app.log.debug(`BoardService :: findById() :: Board :: ${JSON.stringify(board)}`);
 
       return Promise.resolve(board);
     } catch (error) {
@@ -65,11 +61,11 @@ export class BoardService {
 
       app.log.debug(`BoardService :: create() :: result :: ${JSON.stringify(result)}`,);
 
-      const rows: number = result.rows[0];
+      const id: number = result;
 
-      app.log.debug(`BoardService :: create() :: rows :: ${JSON.stringify(rows)}`,);
+      app.log.debug(`BoardService :: create() :: id :: ${JSON.stringify(result)}`,);
 
-      return Promise.resolve(rows);
+      return Promise.resolve(result);
     } catch (error) {
       app.log.error(`BoardService :: create() :: error :: ${error}`);
       return Promise.reject(error);

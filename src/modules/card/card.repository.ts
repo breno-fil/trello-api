@@ -51,7 +51,7 @@ export class CardRepository implements IRepository {
     const client = await app.pg.connect();
 
     try {
-      const { rows } = await client.query('SELECT * FROM cards WHERE id=$1', [id])
+      const { rows } = await client.query(`SELECT * FROM cards WHERE id=${id}`)
       // Note: avoid doing expensive computation here, this will block releasing the client
       // return rows
       app.log.debug(`CardRepository :: findById() :: rows :: ${JSON.stringify(rows)}`,);
@@ -64,7 +64,8 @@ export class CardRepository implements IRepository {
           card.position,
           card.due_date,
           card.created_at,
-          card.description
+          card.description,
+          card.id
         );
 
         app.log.debug(`CardRepository :: findById() :: cardRetorno :: ${JSON.stringify(cardRetorno)}`,);
@@ -80,17 +81,16 @@ export class CardRepository implements IRepository {
   }
 
   async create(entity: Card): Promise<any> {
-
     return app.pg.transact(async client => {
         // will resolve to an id, or reject with an error
-        const id = await client.query(
-            'INSERT INTO public.cards(id, name, list_id, position, due_date, created_at, description) VALUES(nextval(\'cards_id_seq\'::regclass), $1, $2, $3, $4, $5, $6) RETURNING id', 
-            [entity.name, entity.list_id, entity.position, entity.due_date, entity.created_at, entity.description]
+        const card = await client.query(
+          'INSERT INTO cards(id, name, list_id, position, due_date, created_at, description) VALUES(nextval(\'cards_id_seq\'::regclass), $1, $2, $3, $4, $5, $6) RETURNING id, name, list_id, position, due_date, created_at, description', 
+          [entity.name, entity.list_id, entity.position, entity.due_date, entity.created_at, entity.description]
         )
     
-        app.log.debug(`CardRepository :: create() :: id :: ${JSON.stringify(id)}`,);
+        app.log.debug(`CardRepository :: create() :: card :: ${JSON.stringify(card)}`,);
 
-        return Promise.resolve(id);
+        return Promise.resolve(card);
     });
   }
 
@@ -102,13 +102,13 @@ export class CardRepository implements IRepository {
     try {
       return app.pg.transact(async client => {
         // will resolve to an id, or reject with an error
-        const list = await client.query(
-            'UPDATE cards SET name=$2, list_id=$3, position=$4, due_date=$5, created_at=$6, description=$7 WHERE id=$1',
+        const card = await client.query(
+            'UPDATE cards SET name=$2, list_id=$3, position=$4, due_date=$5, created_at=$6, description=$7 WHERE id=$1 RETURNING id, name, list_id, position, due_date, created_at, description',
             [entity.id, entity.name, entity.list_id, entity.position, entity.due_date, entity.created_at, entity.description]
         )
         
-        app.log.debug(`CardRepository :: update() :: id :: ${JSON.stringify(list)}`,);
-        return Promise.resolve(list);
+        app.log.debug(`CardRepository :: update() :: card :: ${JSON.stringify(card)}`,);
+        return Promise.resolve(card);
       });
     } finally {
       // Release the client immediately after query resolves, or upon error
@@ -137,14 +137,14 @@ export class CardRepository implements IRepository {
       query_string = (index < (entries.length - 1)) ? query_string.concat(', ') : query_string.concat(' ');
     });
 
-    query_string = query_string.concat(`WHERE id=${entity.id}`);
+    query_string = query_string.concat(`WHERE id=${entity.id} RETURNING id, name, list_id, position, due_date, created_at, description`);
 
     try {
       return app.pg.transact(async client => {
         // will resolve to an id, or reject with an error
         const card = await client.query(query_string);
         
-        app.log.debug(`CardRepository :: patch() :: id :: ${JSON.stringify(card)}`,);
+        app.log.debug(`CardRepository :: patch() :: card :: ${JSON.stringify(card)}`,);
         return Promise.resolve(card);
       });
     } finally {
@@ -157,10 +157,13 @@ export class CardRepository implements IRepository {
     const client = await app.pg.connect();
 
     try {
-      const deleted = await client.query('DELETE FROM cards WHERE id=$1', [id])
-      return Promise.resolve(deleted)
+      const deleted = await client.query(`DELETE FROM cards WHERE id=${id} RETURNING id`);
+
+      if (deleted.rowCount > 0) return Promise.resolve(deleted.rows[0]);
+      else return Promise.resolve(deleted);
+
     } catch (error) {
-      return Promise.resolve(error)
+      return Promise.resolve(error);
     }
   }
 

@@ -58,12 +58,12 @@ export class ListService {
   public async create(list: List): Promise<any> {
     try {
       app.log.debug(`ListService :: create() :: list :: ${JSON.stringify({list})}`);
-
+      
       let result = await this.listRepository.create(list);
+      
+      app.log.debug(`ListService :: create() :: result :: ${JSON.stringify(result)}`);
 
-      app.log.debug(`ListService :: create() :: result :: ${JSON.stringify(list)}`);
-
-      return Promise.resolve(list);
+      return Promise.resolve(result);
     } catch (error) {
       app.log.error(`ListService :: create() :: error :: ${error}`);
       return Promise.reject(error);

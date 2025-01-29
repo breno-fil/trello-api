@@ -74,9 +74,10 @@ const optsRegisterPOST = {
         description: "List registered at the Sanitation platform",
         type: "object",
         properties: {
-          board_id: { type: "number" },
+          id: { type: "number" },
           name: { type: "string" },
-          position: {type: "number"}
+          position: {type: "number"},
+          board_id: { type: "number" }
         },
       },
     },
@@ -414,9 +415,7 @@ export default fastifyPlugin(async (app: FastifyInstance) => {
           reply.status(200).send(result);
         })
         .catch((error) => {
-          app.log.error(
-            `ListRoute :: handleRequest :: create() :: exception handling request :: ${error}`,
-          );
+          app.log.error(`ListRoute :: handleRequest :: create() :: exception handling request :: ${error}`);
           throw new Error(error);
         });
     },

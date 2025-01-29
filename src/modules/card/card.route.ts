@@ -83,9 +83,14 @@ const optsRegisterPOST = {
         description: "Card registered at the Sanitation platform",
         type: "object",
         properties: {
-          acknowledged: { type: "boolean" },
-          insertedId: { type: "string" },
-        },
+          id: { type: "number" },
+          name: { type: "string" },
+          list_id: { type: "number" },
+          position: { type: "number" },
+          due_date: { type: "string" },
+          created_at: { type: "string" },
+          description: { type: "string" }
+        }
       },
     },
     security: [
@@ -128,7 +133,7 @@ const optsGETONE = {
         description: "Card from the Sanitation platform",
         type: "object",
         properties: {
-          id: { type: "string" },
+          id: { type: "number" },
           name: { type: "string" },
           list_id: { type: "number" },
           position: { type: "number" },
@@ -137,7 +142,7 @@ const optsGETONE = {
           description: { type: "string" }
         },
         example: {
-          id: "string",
+          id: "number",
           name: "string",
           list_id: "number",
           position: "number",
@@ -176,11 +181,13 @@ const optsPUT = {
         description: "Card updated at the Sanitation platform",
         type: "object",
         properties: {
-          acknowledged: { type: "boolean" },
-          modifiedCount: { type: "number" },
-          upsertedId: { type: "string" },
-          upsertedCount: { type: "number" },
-          matchedCount: { type: "number" }
+          id: { type: "number" },
+          name: { type: "string" },
+          list_id: { type: "number" },
+          position: { type: "number" },
+          due_date: { type: "string" },
+          created_at: { type: "string" },
+          description: { type: "string" }
         },
       },
     },
@@ -213,6 +220,7 @@ const optsPATCH = {
         description: "Card updated at the Sanitation platform",
         type: "object",
         properties: {
+          id: { type: "number" },
           name: { type: "string" },
           list_id: { type: "number" },
           position: { type: "number" },
@@ -240,8 +248,7 @@ const optsDELETE = {
         description: "Card deleted at the Sanitation platform",
         type: "object",
         properties: {
-          acknowledged: { type: "boolean" },
-          deletedCount: { type: "number" },
+          id: { type: "number" }
         },
       },
     },
@@ -272,21 +279,11 @@ export default fastifyPlugin(async (app: FastifyInstance) => {
 
       let { nome, limit, role, skip, list_id } = request.query;
 
-      app.log.debug(
-        `CardRoute :: handleRequest :: findAll() :: nome => ${nome}`,
-      );
-      app.log.debug(
-        `CardRoute :: handleRequest :: findAll() :: limit => ${limit}`,
-      );
-      app.log.debug(
-        `CardRoute :: handleRequest :: findAll() :: role => ${role}`,
-      );
-      app.log.debug(
-        `CardRoute :: handleRequest :: findAll() :: skip => ${skip}`,
-      );
-      app.log.debug(
-        `CardRoute :: handleRequest :: findAll() :: list_id => ${list_id}`,
-      );
+      app.log.debug(`CardRoute :: handleRequest :: findAll() :: nome => ${nome}`);
+      app.log.debug(`CardRoute :: handleRequest :: findAll() :: limit => ${limit}`);
+      app.log.debug(`CardRoute :: handleRequest :: findAll() :: role => ${role}`);
+      app.log.debug(`CardRoute :: handleRequest :: findAll() :: skip => ${skip}`);
+      app.log.debug(`CardRoute :: handleRequest :: findAll() :: list_id => ${list_id}`);
 
       let filtro: any = {};
 
@@ -312,11 +309,9 @@ export default fastifyPlugin(async (app: FastifyInstance) => {
 
       await cardService
         .findAll(filtro)
-        .then((Cards) => {
-          app.log.debug(
-            `CardRoute :: handleRequest :: get all Cards :: Cards.length :: ${Cards.length}`,
-          );
-          return reply.status(200).send(Cards);
+        .then((cards) => {
+          app.log.debug(`CardRoute :: handleRequest :: get all Cards :: Cards.length :: ${cards.length}`);
+          return reply.status(200).send(cards);
         })
         .catch((error) => {
           app.log.error(
@@ -427,13 +422,11 @@ export default fastifyPlugin(async (app: FastifyInstance) => {
       await cardService
         .create(request?.body as Card)
         .then((result) => {
-          app.log.debug(`CardRoute :: handleRequest :: create a Card :: ${JSON.stringify(result)}`);
-          reply.status(200).send(result);
+          app.log.debug(`CardRoute :: handleRequest :: create a Card :: ${JSON.stringify(result.rows[0])}`);
+          reply.status(200).send(result.rows[0]);
         })
         .catch((error) => {
-          app.log.error(
-            `CardRoute :: handleRequest :: create() :: exception handling request :: ${error}`,
-          );
+          app.log.error(`CardRoute :: handleRequest :: create() :: exception handling request :: ${error}`);
           throw new Error(error);
         });
     },
@@ -462,20 +455,16 @@ export default fastifyPlugin(async (app: FastifyInstance) => {
         position: position,
         due_date: due_date,
         created_at: created_at,
-        description: description 
+        description: description
       };
 
-      app.log.debug(
-        `CardRoute :: handleRequest :: Card to Update :: ${JSON.stringify(partialCard)}`,
-      );
+      app.log.debug(`CardRoute :: handleRequest :: Card to Update :: ${JSON.stringify(partialCard)}`);
 
       await cardService
         .update(partialCard)
         .then((result) => {
-          app.log.debug(
-            `CardRoute :: handleRequest :: update a Card :: ${JSON.stringify(result)}`,
-          );
-          reply.status(200).send(result);
+          app.log.debug(`CardRoute :: handleRequest :: update a Card :: ${JSON.stringify(result.rows[0])}`);
+          reply.status(200).send(result.rows[0]);
         })
         .catch((error) => {
           app.log.error(
@@ -562,16 +551,12 @@ export default fastifyPlugin(async (app: FastifyInstance) => {
 
       const { id }: any = request.params;
 
-      app.log.debug(
-        `CardRoute :: handleRequest :: delete() :: idToDelete :: ${id}`,
-      );
+      app.log.debug(`CardRoute :: handleRequest :: delete() :: idToDelete :: ${id}`);
 
       await cardService
         .delete(id)
         .then((result) => {
-          app.log.debug(
-            `CardRoute :: handleRequest :: delete a Card :: ${JSON.stringify(result)}`,
-          );
+          app.log.debug(`CardRoute :: handleRequest :: delete a Card :: ${JSON.stringify(result)}`);
           reply.status(200).send(JSON.stringify(result));
         })
         .catch((error) => {

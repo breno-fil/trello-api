@@ -9,8 +9,14 @@ export class BoardRepository implements IRepository {
 
     const client = await app.pg.connect();
 
+    var query_string: string = 'SELECT * FROM boards'
+
+    if (filter.hasOwnProperty('user_id')) {
+      query_string = query_string.concat(` WHERE created_by=${filter['user_id']}`);
+    }
+
     try {
-      const { rows } = await client.query('SELECT * FROM boards')
+      const { rows } = await client.query(query_string)
       // Note: avoid doing expensive computation here, this will block releasing the client
       // return rows
       app.log.debug(`BoardRepository :: findAll() :: rows :: ${JSON.stringify(rows)}`,);
@@ -74,14 +80,23 @@ export class BoardRepository implements IRepository {
 
     return app.pg.transact(async client => {
         // will resolve to an id, or reject with an error
-        const id = await client.query(
-          'INSERT INTO public.boards(id, name, background_color, text_color, created_by) VALUES(nextval(\'boards_id_seq\'::regclass), $1, $2, $3, $4) RETURNING id', 
+        const result = await client.query(
+          'INSERT INTO boards(id, name, background_color, text_color, created_by) VALUES(nextval(\'boards_id_seq\'::regclass), $1, $2, $3, $4) RETURNING id', 
           [entity.name, entity.background_color, entity.text_color, entity.created_by]
         )
-    
-        app.log.debug(`BoardRepository :: create() :: id :: ${JSON.stringify(id)}`,);
+        
+        app.log.debug(`BoardRepository :: create() :: id :: ${JSON.stringify(result.rows[0])}`);
 
-        return Promise.resolve(id);
+        const board_id: number = result.rows[0]['id'];
+
+        const board_user = await client.query(
+          'INSERT INTO board_users(board_id, user_id, role, starred) VALUES($1, $2, $3, $4)',
+          [board_id, entity.created_by, 'owner', false]
+        );
+
+        app.log.debug(`BoardRepository :: create board_user :: ${JSON.stringify(board_user)}`);
+
+        return Promise.resolve(result.rows[0]);
     });
   }
 
@@ -148,10 +163,12 @@ export class BoardRepository implements IRepository {
     const client = await app.pg.connect();
 
     try {
-      const deleted = await client.query('DELETE FROM boards WHERE id=$1', [id])
-      return Promise.resolve(deleted)
+      const board = await client.query(`DELETE FROM boards WHERE id=${id}`);
+      const board_users = await client.query(`DELETE FROM board_users WHERE board_id=${id}`);
+
+      return Promise.resolve(board);
     } catch (error) {
-      return Promise.resolve(error)
+      return Promise.resolve(error);
     }
   }
 
