@@ -8,7 +8,7 @@ config();
 
 const optsGETALL = {
   schema: {
-    description: "Get All Users from the Sanitation platform.",
+    description: "Get All Users from the Trello platform.",
     summary: "Get All Users.",
     tags: ["User"],
     querystring: {
@@ -27,7 +27,7 @@ const optsGETALL = {
     },
     response: {
       200: {
-        description: "Array of Users from the Sanitation platform",
+        description: "Array of Users from the Trello platform",
         type: "array",
         items: {
           type: "object",
@@ -56,7 +56,7 @@ const optsGETALL = {
 
 const optsRegisterPOST = {
   schema: {
-    description: "Register a User in the Sanitation platform.",
+    description: "Register a User in the Trello platform.",
     summary: "Register a User.",
     tags: ["User"],
     body: {
@@ -69,7 +69,7 @@ const optsRegisterPOST = {
     },
     response: {
       200: {
-        description: "User registered at the Sanitation platform",
+        description: "User registered at the Trello platform",
         type: "object",
         properties: {
           token: { type: "string" }
@@ -86,7 +86,7 @@ const optsRegisterPOST = {
 
 const optsLoginPOST = {
   schema: {
-    description: "Login the User in the Sanitation platform.",
+    description: "Login the User in the Trello platform.",
     summary: "Login the User.",
     tags: ["User"],
     body: {
@@ -98,7 +98,7 @@ const optsLoginPOST = {
     },
     response: {
       200: {
-        description: "User registered at the Sanitation platform",
+        description: "User registered at the Trello platform",
         type: "object",
         properties: {
           token: { type: "string" }
@@ -115,12 +115,12 @@ const optsLoginPOST = {
 
 const optsGETCOUNT = {
   schema: {
-    description: "Get the total of Users from the Sanitation platform.",
+    description: "Get the total of Users from the Trello platform.",
     summary: "Get count of Users.",
     tags: ["User"],
     response: {
       200: {
-        description: "Count of the Users from the Sanitation platform",
+        description: "Count of the Users from the Trello platform",
         type: "object",
         properties: {
           count: { type: "number" },
@@ -137,12 +137,12 @@ const optsGETCOUNT = {
 
 const optsGETONE = {
   schema: {
-    description: "Get a User of Sanitation platform.",
+    description: "Get a User of Trello platform.",
     summary: "Get one User.",
     tags: ["User"],
     response: {
       200: {
-        description: "User from the Sanitation platform",
+        description: "User from the Trello platform",
         type: "object",
         properties: {
           id: { type: "string" },
@@ -170,7 +170,7 @@ const optsGETONE = {
 
 const optsPUT = {
   schema: {
-    description: "Update a User in the Sanitation platform.",
+    description: "Update a User in the Trello platform.",
     summary: "Update a User.",
     tags: ["User"],
     body: {
@@ -184,7 +184,7 @@ const optsPUT = {
     },
     response: {
       200: {
-        description: "User updated at the Sanitation platform",
+        description: "User updated at the Trello platform",
         type: "object",
         properties: {
           acknowledged: { type: "boolean" },
@@ -205,7 +205,7 @@ const optsPUT = {
 
 const optsPATCH = {
   schema: {
-    description: "Update a User in the Sanitation platform.",
+    description: "Update a User in the Trello platform.",
     summary: "Update a User.",
     tags: ["User"],
     body: {
@@ -219,7 +219,7 @@ const optsPATCH = {
     },
     response: {
       200: {
-        description: "User updated at the Sanitation platform",
+        description: "User updated at the Trello platform",
         type: "object",
         properties: {
           id: {type: 'number'},
@@ -240,7 +240,7 @@ const optsPATCH = {
 
 const optsPW = {
   schema: {
-    description: "Update a User password in the Sanitation platform.",
+    description: "Update a User password in the Trello platform.",
     summary: "Update a User password.",
     tags: ["User"],
     body: {
@@ -252,7 +252,7 @@ const optsPW = {
     },
     response: {
       200: {
-        description: "User updated at the Sanitation platform",
+        description: "User updated at the Trello platform",
         type: "object",
         properties: {
           username: { type: "string" },
@@ -270,12 +270,12 @@ const optsPW = {
 
 const optsDELETE = {
   schema: {
-    description: "Delete a User of Sanitation platform.",
+    description: "Delete a User of Trello platform.",
     summary: "Delete one User.",
     tags: ["User"],
     response: {
       200: {
-        description: "User deleted at the Sanitation platform",
+        description: "User deleted at the Trello platform",
         type: "object",
         properties: {
           acknowledged: { type: "boolean" },
@@ -296,7 +296,7 @@ const userService = new UserService();
 export default fastifyPlugin(async (app: FastifyInstance) => {
 
   /**
-   * Route to find all users of the sanitation platform
+   * Route to find all users of the Trello platform
    */
   app.route({
     method: "GET",
@@ -359,7 +359,7 @@ export default fastifyPlugin(async (app: FastifyInstance) => {
   });
 
   /**
-   * Route to count how many user are in the sanitation platform
+   * Route to count how many user are in the Trello platform
    */
   app.route({
     method: "GET",
@@ -409,7 +409,7 @@ export default fastifyPlugin(async (app: FastifyInstance) => {
   });
 
   /**
-   * Route to findById an user in the sanitation platform
+   * Route to findById an user in the Trello platform
    */
   app.route({
     method: "GET",
@@ -447,7 +447,7 @@ export default fastifyPlugin(async (app: FastifyInstance) => {
   });
 
   /**
-   * Route to register an user in the sanitation platform
+   * Route to register an user in the Trello platform
    */
   app.route({
     method: "POST",
@@ -474,7 +474,7 @@ export default fastifyPlugin(async (app: FastifyInstance) => {
   });
 
   /**
-   * Route to update an user in the sanitation platform
+   * Route to update an user in the Trello platform
    */
   app.route({
     method: "PUT",
@@ -518,7 +518,7 @@ export default fastifyPlugin(async (app: FastifyInstance) => {
   });
 
   /**
-   * Route to update an user in the sanitation platform
+   * Route to update an user in the Trello platform
    */
   app.route({
     method: "PATCH",
@@ -562,7 +562,7 @@ export default fastifyPlugin(async (app: FastifyInstance) => {
   });
 
   /**
-   * Route to delete an user in the sanitation platform
+   * Route to delete an user in the Trello platform
    */
   app.route({
     method: "DELETE",
@@ -598,7 +598,7 @@ export default fastifyPlugin(async (app: FastifyInstance) => {
   });
 
   /**
-   * Route to login an user in the sanitation platform
+   * Route to login an user in the Trello platform
    */
   app.route({
     method: "POST",
@@ -625,7 +625,7 @@ export default fastifyPlugin(async (app: FastifyInstance) => {
   });
 
   /**
-   * Route to change the temporary password of an user in the sanitation platform
+   * Route to change the temporary password of an user in the Trello platform
    */
   app.route({
     method: "PUT",

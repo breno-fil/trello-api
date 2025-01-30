@@ -8,7 +8,7 @@ config();
 
 const optsGETALL = {
   schema: {
-    description: "Get All Lists from the Sanitation platform.",
+    description: "Get All Lists from the Trello platform.",
     summary: "Get All Lists.",
     tags: ["List"],
     querystring: {
@@ -27,7 +27,7 @@ const optsGETALL = {
     },
     response: {
       200: {
-        description: "Array of Lists from the Sanitation platform",
+        description: "Array of Lists from the Trello platform",
         type: "array",
         items: {
           type: "object",
@@ -58,7 +58,7 @@ const optsGETALL = {
 
 const optsRegisterPOST = {
   schema: {
-    description: "Register a List in the Sanitation platform.",
+    description: "Register a List in the Trello platform.",
     summary: "Register a List.",
     tags: ["List"],
     body: {
@@ -71,7 +71,7 @@ const optsRegisterPOST = {
     },
     response: {
       200: {
-        description: "List registered at the Sanitation platform",
+        description: "List registered at the Trello platform",
         type: "object",
         properties: {
           id: { type: "number" },
@@ -91,12 +91,12 @@ const optsRegisterPOST = {
 
 const optsGETCOUNT = {
   schema: {
-    description: "Get the total of Lists from the Sanitation platform.",
+    description: "Get the total of Lists from the Trello platform.",
     summary: "Get count of Lists.",
     tags: ["List"],
     response: {
       200: {
-        description: "Count of the Lists from the Sanitation platform",
+        description: "Count of the Lists from the Trello platform",
         type: "object",
         properties: {
           count: { type: "number" },
@@ -113,12 +113,12 @@ const optsGETCOUNT = {
 
 const optsGETONE = {
   schema: {
-    description: "Get a List of Sanitation platform.",
+    description: "Get a List of Trello platform.",
     summary: "Get one List.",
     tags: ["List"],
     response: {
       200: {
-        description: "List from the Sanitation platform",
+        description: "List from the Trello platform",
         type: "object",
         properties: {
           id: { type: "number" },
@@ -144,7 +144,7 @@ const optsGETONE = {
 
 const optsPUT = {
   schema: {
-    description: "Update a List in the Sanitation platform.",
+    description: "Update a List in the Trello platform.",
     summary: "Update a List.",
     tags: ["List"],
     body: {
@@ -157,7 +157,7 @@ const optsPUT = {
     },
     response: {
       200: {
-        description: "List updated at the Sanitation platform",
+        description: "List updated at the Trello platform",
         type: "object",
         properties: {
           id: {type: "number"},
@@ -183,7 +183,7 @@ const optsPUT = {
 
 const optsPATCH = {
   schema: {
-    description: "Update a partial List in the Sanitation platform.",
+    description: "Update a partial List in the Trello platform.",
     summary: "Update a partial List.",
     tags: ["List"],
     body: {
@@ -196,7 +196,7 @@ const optsPATCH = {
     },
     response: {
       200: {
-        description: "List updated at the Sanitation platform",
+        description: "List updated at the Trello platform",
         type: "object",
         properties: {
           id: {type: "number"},
@@ -222,12 +222,12 @@ const optsPATCH = {
 
 const optsDELETE = {
   schema: {
-    description: "Delete a List of Sanitation platform.",
+    description: "Delete a List of Trello platform.",
     summary: "Delete one List.",
     tags: ["List"],
     response: {
       200: {
-        description: "List deleted at the Sanitation platform",
+        description: "List deleted at the Trello platform",
         type: "object",
         properties: {
           id: {type: "number"},
@@ -250,7 +250,7 @@ const listService = new ListService();
 export default fastifyPlugin(async (app: FastifyInstance) => {
 
   /**
-   * Route to find all Lists of the sanitation platform
+   * Route to find all Lists of the Trello platform
    */
   app.route({
     method: "GET",
@@ -321,7 +321,7 @@ export default fastifyPlugin(async (app: FastifyInstance) => {
   });
 
   /**
-   * Route to count how many List are in the sanitation platform
+   * Route to count how many List are in the Trello platform
    */
   app.route({
     method: "GET",
@@ -367,7 +367,7 @@ export default fastifyPlugin(async (app: FastifyInstance) => {
   });
 
   /**
-   * Route to findById an List in the sanitation platform
+   * Route to findById an List in the Trello platform
    */
   app.route({
     method: "GET",
@@ -403,7 +403,7 @@ export default fastifyPlugin(async (app: FastifyInstance) => {
   });
 
   /**
-   * Route to register an List in the sanitation platform
+   * Route to register an List in the Trello platform
    */
   app.route({
     method: "POST",
@@ -429,7 +429,7 @@ export default fastifyPlugin(async (app: FastifyInstance) => {
   });
 
   /**
-   * Route to update an List in the sanitation platform
+   * Route to update an List in the Trello platform
    */
   app.route({
     method: "PUT",
@@ -471,7 +471,7 @@ export default fastifyPlugin(async (app: FastifyInstance) => {
   });
 
   /**
-   * Route to update an List in the sanitation platform
+   * Route to update an List in the Trello platform
    */
   app.route({
     method: "PATCH",
@@ -512,7 +512,7 @@ export default fastifyPlugin(async (app: FastifyInstance) => {
   });
 
   /**
-   * Route to delete an List in the sanitation platform
+   * Route to delete an List in the Trello platform
    */
   app.route({
     method: "DELETE",
