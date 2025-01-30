@@ -63,9 +63,7 @@ export class UserService {
 
       let result = await this.userRepository.create(user);
 
-      app.log.debug(
-        `UserService :: create() :: result :: ${JSON.stringify(result)}`,
-      );
+      app.log.debug(`UserService :: create() :: result :: ${JSON.stringify(result)}`);
 
       return Promise.resolve(result);
     } catch (error) {
@@ -80,9 +78,7 @@ export class UserService {
 
       let loggedUser = await this.userRepository.login(user);
 
-      app.log.debug(
-        `UserService :: login() :: user :: ${JSON.stringify(loggedUser)}`,
-      );
+      app.log.debug(`UserService :: login() :: user :: ${JSON.stringify(loggedUser)}`);
 
       return Promise.resolve(loggedUser);
     } catch (error) {

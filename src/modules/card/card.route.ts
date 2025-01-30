@@ -22,7 +22,7 @@ const optsGETALL = {
         skip: {
           type: "number",
           description: "skip number of results for pagination",
-        },
+        }
       },
     },
     response: {
@@ -277,12 +277,11 @@ export default fastifyPlugin(async (app: FastifyInstance) => {
     handler: async (request: any, reply) => {
       app.log.debug(`CardRoute :: handleRequest :: findAll()`);
 
-      let { nome, limit, role, skip, list_id } = request.query;
+      let { nome, limit, skip, list_id } = request.query;
 
       app.log.debug(`CardRoute :: handleRequest :: findAll() :: nome => ${nome}`);
-      app.log.debug(`CardRoute :: handleRequest :: findAll() :: limit => ${limit}`);
-      app.log.debug(`CardRoute :: handleRequest :: findAll() :: role => ${role}`);
       app.log.debug(`CardRoute :: handleRequest :: findAll() :: skip => ${skip}`);
+      app.log.debug(`CardRoute :: handleRequest :: findAll() :: limit => ${limit}`);
       app.log.debug(`CardRoute :: handleRequest :: findAll() :: list_id => ${list_id}`);
 
       let filtro: any = {};
@@ -291,21 +290,11 @@ export default fastifyPlugin(async (app: FastifyInstance) => {
         filtro["nome"] = { $regex: nome, $options: "i" };
       }
 
-      if (limit) {
-        filtro["limit"] = limit;
-      }
+      if (limit) filtro["limit"] = limit;
 
-      if (role) {
-        filtro["role"] = role;
-      }
+      if (skip) filtro["skip"] = skip;
 
-      if (skip) {
-        filtro["skip"] = skip;
-      }
-
-      if (list_id) {
-        filtro["list_id"] = list_id;
-      }
+      if (list_id) filtro["list_id"] = list_id;
 
       await cardService
         .findAll(filtro)

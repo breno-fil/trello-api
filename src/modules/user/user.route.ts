@@ -72,8 +72,7 @@ const optsRegisterPOST = {
         description: "User registered at the Sanitation platform",
         type: "object",
         properties: {
-          acknowledged: { type: "boolean" },
-          insertedId: { type: "string" },
+          token: { type: "string" }
         },
       },
     },
@@ -454,9 +453,6 @@ export default fastifyPlugin(async (app: FastifyInstance) => {
     method: "POST",
     url: "/api/users/register",
     schema: optsRegisterPOST.schema,
-    // preHandler: app.auth([app.validateCredential, app.validatePermission], {
-    //   relation: "and",
-    // }),
     handler: async (request: any, reply) => {
       app.log.debug(`UserRoute :: handleRequest :: create()`);
 

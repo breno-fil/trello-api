@@ -101,12 +101,13 @@ export class ListRepository implements IRepository {
       return app.pg.transact(async client => {
         // will resolve to an id, or reject with an error
         const list = await client.query(
-            'UPDATE lists SET name=$2, board_id=$3, position=$4 WHERE id=$1', 
+            'UPDATE lists SET name=$2, board_id=$3, position=$4 WHERE id=$1 RETURNING id, name, board_id, position', 
             [entity.id, entity.name, entity.board_id, entity.position]
         )
         
-        app.log.debug(`ListRepository :: update() :: id :: ${JSON.stringify(list)}`,);
-        return Promise.resolve(list);
+        app.log.debug(`ListRepository :: update() :: list :: ${JSON.stringify(list.rows[0])}`,);
+
+        return Promise.resolve(list.rows[0]);
       });
     } finally {
       // Release the client immediately after query resolves, or upon error
@@ -155,8 +156,12 @@ export class ListRepository implements IRepository {
     const client = await app.pg.connect();
 
     try {
-      const deleted = await client.query('DELETE FROM lists WHERE id=$1', [id])
-      return Promise.resolve(deleted)
+      const deleted_cards = await client.query(`DELETE FROM cards WHERE list_id=${id}`);
+      const deleted_lists = await client.query(`DELETE FROM lists WHERE id=${id}`);
+
+      app.log.debug(`ListRepository :: delete() :: deleted cards :: ${deleted_cards.rows.length}`);
+
+      return Promise.resolve(deleted_lists);
     } catch (error) {
       return Promise.resolve(error)
     }

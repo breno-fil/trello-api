@@ -1,12 +1,12 @@
 export class List {
     id?: number;
     name: string;
-    board_id: string;
+    board_id: number;
     position: number;
     
     constructor(
       name: string,
-      board_id: string,
+      board_id: number,
       position: number,
       id?: number
     ) {

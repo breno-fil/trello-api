@@ -113,13 +113,11 @@ export class ListService {
 
   public async delete(id: string): Promise<any> {
     try {
-      app.log.debug(`ListService :: delete() :: id :: ${id}`);
+      app.log.debug(`ListService :: delete() :: list id :: ${id}`);
 
       let result = await this.listRepository.delete(id);
 
-      app.log.debug(
-        `ListService :: delete() :: result :: ${JSON.stringify(result)}`,
-      );
+      app.log.debug(`ListService :: delete() :: result :: ${JSON.stringify(result)}`);
 
       return Promise.resolve(result);
     } catch (error) {

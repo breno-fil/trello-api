@@ -66,13 +66,26 @@ export class UserRepository implements IRepository {
       return app.pg.transact(async client => {
         // will resolve to an id, or reject with an error
         const user = await client.query(
-          'INSERT INTO users(id, username, email, password) VALUES(nextval(\'users_id_seq\'::regclass), $1, $2, $3) RETURNING id',
+          'INSERT INTO users(id, username, email, password) VALUES(nextval(\'users_id_seq\'::regclass), $1, $2, $3) RETURNING id, username, email, password',
           [entity.username, entity.email, entity.password]
         )
+        
+        var responseUser = user.rows[0];
 
-        app.log.debug(`UserRepository :: create() :: id :: ${JSON.stringify(user)}`,);
+        responseUser.token = app.jwt.sign({
+          id: responseUser.id,
+          username: responseUser.username,
+          email: responseUser.email
+        });
 
-        return Promise.resolve(user);
+        const { updatedUser } = await client.query(
+          "UPDATE users SET token=$1 WHERE id=$2;",
+          [responseUser.token, responseUser.id]
+        )
+
+        app.log.debug(`UserRepository :: create() :: user :: ${JSON.stringify(responseUser)}`,);
+
+        return Promise.resolve(responseUser);
       });
     } finally {
       // Release the client immediately after query resolves, or upon error

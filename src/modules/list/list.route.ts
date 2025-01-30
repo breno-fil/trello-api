@@ -160,12 +160,17 @@ const optsPUT = {
         description: "List updated at the Sanitation platform",
         type: "object",
         properties: {
-          acknowledged: { type: "boolean" },
-          modifiedCount: { type: "number" },
-          upsertedId: { type: "string" },
-          upsertedCount: { type: "number" },
-          matchedCount: { type: "number" }
+          id: {type: "number"},
+          name: {type: "string"},
+          board_id: {type: "number"},
+          position: {type: "number"}
         },
+        example: {
+          id: "number",
+          name: "string",
+          board_id: "number",
+          position: "number"
+        }
       },
     },
     security: [
@@ -225,8 +230,10 @@ const optsDELETE = {
         description: "List deleted at the Sanitation platform",
         type: "object",
         properties: {
-          acknowledged: { type: "boolean" },
-          deletedCount: { type: "number" },
+          id: {type: "number"},
+          name: {type: "string"},
+          board_id: {type: "string"},
+          position: {type: "number"}
         },
       },
     },
@@ -435,18 +442,16 @@ export default fastifyPlugin(async (app: FastifyInstance) => {
       app.log.debug(`ListRoute :: handleRequest :: update()`);
 
       const { id }: any = request.params;
-      const { nome, board_id, position }: any = request?.body;
+      const { name, board_id, position }: any = request?.body;
 
       let partialList = {
         id: id,
-        name: nome,
+        name: name,
         board_id: board_id,
         position: position,
       };
 
-      app.log.debug(
-        `ListRoute :: handleRequest :: List to Update :: ${JSON.stringify(partialList)}`,
-      );
+      app.log.debug(`ListRoute :: handleRequest :: List to Update :: ${JSON.stringify(partialList)}`);
 
       await listService
         .update(partialList)
@@ -483,19 +488,13 @@ export default fastifyPlugin(async (app: FastifyInstance) => {
 
       let partialList: Partial<List> = {id: id};
 
-      if (name) {
-        partialList.name = name
-      }
+      if (name) partialList.name = name;
 
-      if (board_id) {
-        partialList.board_id = board_id
-      }
+      if (board_id) partialList.board_id = Number(board_id);
 
-      if (position) {
-        partialList.position = position
-      }
+      if (position) partialList.position = Number(position);
 
-      app.log.debug(`ListRoute :: handleRequest :: List to patch :: ${JSON.stringify(partialList)}`);
+      app.log.debug(`ListRoute :: handleRequest :: list to patch :: ${JSON.stringify(partialList)}`);
 
       await listService
         .patch(partialList)
@@ -527,16 +526,12 @@ export default fastifyPlugin(async (app: FastifyInstance) => {
 
       const { id }: any = request.params;
 
-      app.log.debug(
-        `ListRoute :: handleRequest :: delete() :: idToDelete :: ${id}`,
-      );
+      app.log.debug(`ListRoute :: handleRequest :: delete() :: list id :: ${id}`);
 
       await listService
         .delete(id)
         .then((result) => {
-          app.log.debug(
-            `ListRoute :: handleRequest :: delete a List :: ${JSON.stringify(result)}`,
-          );
+          app.log.debug(`ListRoute :: handleRequest :: delete a List :: ${JSON.stringify(result)}`);
           reply.status(200).send(JSON.stringify(result));
         })
         .catch((error) => {
